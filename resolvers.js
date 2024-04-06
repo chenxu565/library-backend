@@ -13,14 +13,20 @@ const resolvers = {
     bookCount: async () => Book.collection.countDocuments(),
     authorCount: async () => Author.collection.countDocuments(),
     me: (root, args, context) => {
+      console.log("Query me");
       return context.currentUser;
     },
-    allAuthors: async () => Author.find({}),
+    allAuthors: async () => {
+      console.log("Query all authors");
+      return Author.find({});
+    },
     allGenres: async () => {
+      console.log("Query all genres");
       const books = await Book.find({});
       return [...new Set(books.flatMap((book) => book.genres))];
     },
     allBooks: async (root, args) => {
+      console.log("Query all books");
       if (!args.author) {
         if (!args.genre) {
           return Book.find({}).populate("author");
@@ -49,6 +55,7 @@ const resolvers = {
   },
   Mutation: {
     addBook: async (root, args, context) => {
+      console.log("Add a book");
       const currentUser = context.currentUser;
 
       if (!currentUser) {
@@ -129,6 +136,7 @@ const resolvers = {
       return createdBook;
     },
     editAuthor: async (root, args, context) => {
+      console.log("Edit an author");
       const currentUser = context.currentUser;
 
       if (!currentUser) {
@@ -174,6 +182,7 @@ const resolvers = {
       }
     },
     createUser: async (root, args) => {
+      console.log("Create a user");
       const user = new User({
         username: args.username,
         favoriteGenre: args.favoriteGenre,
@@ -190,6 +199,7 @@ const resolvers = {
       });
     },
     login: async (root, args) => {
+      console.log("Login to a user");
       const user = await User.findOne({ username: args.username });
 
       if (!user || args.password !== "secret") {
@@ -208,7 +218,10 @@ const resolvers = {
   },
   Subscription: {
     bookAdded: {
-      subscribe: () => pubsub.asyncIterator("BOOK_ADDED"),
+      subscribe: () => {
+        console.log("Substribe to add-book");
+        return pubsub.asyncIterator("BOOK_ADDED");
+      },
     },
   },
 };
